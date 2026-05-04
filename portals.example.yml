@@ -1,0 +1,123 @@
+# JobScan Portal Configuration
+# Copy this file to portals.yml and customize for your search.
+#
+# Discovery runs in 3 levels (all additive — results merged and deduped):
+#   L1 — Playwright on `careers_url` of each tracked company (reliable, SPA-safe)
+#   L2 — Direct ATS APIs via scan.mjs (zero-token, fastest)
+#   L3 — WebSearch with site: filters (broad discovery, may include stale results)
+#
+# Every tracked_company MUST have `careers_url`. If the company uses a known
+# ATS (Greenhouse, Ashby, Lever, Workday), `scan.mjs` auto-detects the API from
+# the careers_url — you don't need to set `api` manually unless detection fails.
+
+# ── Title filter ──────────────────────────────────────────────────────
+# At least 1 positive keyword must match AND 0 negatives must match
+# (case-insensitive, substring match).
+
+title_filter:
+  positive:
+    - "AI"
+    - "Machine Learning"
+    - "ML"
+    - "LLM"
+    - "Applied AI"
+    - "AI Engineer"
+    - "AI Product"
+    - "Solutions Architect"
+  negative:
+    - "Intern"
+    - "Junior"
+    - "Contract"
+    - "Temporary"
+    - ".NET"
+    - "Java "
+    - "PHP"
+    - "Android"
+    - "iOS"
+    - "Embedded"
+    - "Firmware"
+    - "Blockchain"
+    - "Web3"
+    - "Salesforce Admin"
+  seniority_boost:
+    - "Staff"
+    - "Principal"
+    - "Lead"
+    - "Director"
+    - "Head of"
+
+# ── Location filter (optional) ────────────────────────────────────────
+# If set, a location must contain a positive keyword AND no negatives.
+# Empty location fields are kept (often means "Remote" or unset by portal).
+
+location_filter:
+  positive:
+    - "Remote"
+    - "United States"
+    - "US"
+    - "EU"
+    - "Europe"
+  negative: []
+
+# ── Tracked companies ─────────────────────────────────────────────────
+
+tracked_companies:
+  - name: "Anthropic"
+    careers_url: "https://www.anthropic.com/jobs"
+    enabled: true
+
+  - name: "OpenAI"
+    careers_url: "https://openai.com/careers"
+    enabled: true
+
+  - name: "Cohere"
+    careers_url: "https://jobs.lever.co/cohere"
+    enabled: true
+
+  - name: "Scale AI"
+    careers_url: "https://job-boards.greenhouse.io/scaleai"
+    enabled: true
+
+  - name: "Hugging Face"
+    careers_url: "https://apply.workable.com/huggingface/"
+    enabled: true
+
+  - name: "Stripe"
+    careers_url: "https://stripe.com/jobs/search"
+    enabled: true
+
+  - name: "Notion"
+    careers_url: "https://www.notion.so/careers"
+    enabled: true
+
+  - name: "Linear"
+    careers_url: "https://linear.app/careers"
+    enabled: true
+
+  - name: "Ramp"
+    careers_url: "https://job-boards.greenhouse.io/ramp"
+    enabled: true
+
+  - name: "Perplexity"
+    careers_url: "https://www.perplexity.ai/hub/careers"
+    enabled: true
+
+  # ── Add your own below ──
+  # - name: "Example Co"
+  #   careers_url: "https://jobs.ashbyhq.com/example-co"
+  #   enabled: true
+
+# ── WebSearch queries (Level 3 — broad discovery) ─────────────────────
+
+search_queries:
+  - name: "Ashby — AI/ML"
+    query: 'site:jobs.ashbyhq.com ("AI Engineer" OR "ML Engineer" OR "Applied AI")'
+    enabled: true
+
+  - name: "Greenhouse — AI Product"
+    query: 'site:boards.greenhouse.io ("AI Product Manager" OR "Applied AI")'
+    enabled: true
+
+  - name: "Lever — Staff/Principal AI"
+    query: 'site:jobs.lever.co ("Staff AI" OR "Principal AI" OR "Head of AI")'
+    enabled: true

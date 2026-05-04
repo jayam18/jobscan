@@ -1,0 +1,81 @@
+# JobScan Profile Configuration
+# Copy this file to profile.yml and fill in your details.
+# This is the single source of truth for your personal data during scoring.
+
+candidate:
+  full_name: "Jane Smith"
+  email: "jane@example.com"
+  location: "San Francisco, CA"
+  linkedin: "linkedin.com/in/janesmith"
+  # Optional
+  portfolio_url: "https://janesmith.dev"
+  github: "github.com/janesmith"
+
+# What roles you're optimizing for (used as context in the scoring prompt)
+target_roles:
+  primary:
+    - "Senior AI Engineer"
+    - "Staff ML Engineer"
+  secondary:
+    - "AI Product Manager"
+    - "Solutions Architect"
+
+# Which archetypes you fit (bias scoring toward these)
+# Suggested values: fde, solution-architect, product-manager, llmops,
+#                   agentic, transformation, backend, frontend, data,
+#                   devops, it-director, program-manager
+target_archetypes:
+  - llmops
+  - solution-architect
+
+# Deal-breakers — if a JD matches any, cap score at 2.0
+deal_breakers:
+  locations:
+    - "on-site only"
+    - "relocation required to X"
+  stacks:
+    - "Java"
+    - "PHP"
+  company_types: []
+
+narrative:
+  # One-line headline you'd put at the top of a cover letter
+  headline: "ML engineer turned AI product builder"
+  # Your top 3-5 superpowers
+  superpowers:
+    - "End-to-end ML pipelines in production"
+    - "Fast prototyping — idea to prod in 2 weeks"
+    - "Cross-functional communication"
+  # Proof points the scorer can reference
+  proof_points:
+    - name: "Project Alpha"
+      hero_metric: "Cut inference latency 40%"
+    - name: "Open Source Tool"
+      hero_metric: "2K+ GitHub stars"
+
+# ── Scoring config ────────────────────────────────────────────────────
+scoring:
+  # 3-5 sentence "who I am" used as scoring context.
+  # Leave empty to auto-generate from cv.md on first scan — you'll be asked
+  # to review and edit before scoring begins.
+  candidate_digest: ""
+
+  # Tier cutoffs (one decimal, 1.0–5.0)
+  score_threshold_high: 4.0
+  score_threshold_medium: 3.0
+
+  # Runaway-cost guard. Max offers scored per scan.
+  score_cap: 50
+
+  # Offers per LLM call during scoring (lower = more reliable parsing,
+  # higher = cheaper). 5 is a balanced default.
+  score_batch_size: 5
+
+  # How much of the JD body to send to the scorer (in characters)
+  jd_snippet_chars: 1000
+
+# ── Compensation (optional — informs scoring rationale) ───────────────
+compensation:
+  target_range: "$150K-200K"
+  currency: "USD"
+  minimum_acceptable: "$130K"

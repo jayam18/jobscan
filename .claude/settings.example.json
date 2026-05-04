@@ -1,0 +1,20 @@
+{
+  "_comment": "Copy this file to .claude/settings.local.json (gitignored) and edit. These permissions allow JobScan's scripts to run without prompting on every Bash call.",
+  "permissions": {
+    "allow": [
+      "Bash(node scan.mjs:*)",
+      "Bash(node scan-spa.mjs:*)",
+      "Bash(node score.mjs:*)",
+      "Bash(node classify-once.mjs:*)",
+      "Bash(node apply-classifications.mjs:*)",
+      "Bash(node apply-scores.mjs:*)",
+      "Bash(node update-snippets.mjs:*)",
+      "Bash(node doctor.mjs)",
+      "Bash(node notify.mjs:*)",
+      "Bash(npm install)",
+      "Bash(npm run doctor)",
+      "Bash(npx playwright install:*)"
+    ],
+    "deny": []
+  }
+}

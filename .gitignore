@@ -1,0 +1,42 @@
+# Configuration (personal/sensitive)
+profile.yml
+portals.yml
+cv.md
+
+# Data / Output
+data/*
+!data/.gitkeep
+!data/jobscan-email-example-template.html
+
+# Per-company JD inputs and interview prep outputs
+interview/
+job-description-*.md
+
+jobscan-email.html
+jobscan-out.html
+
+# Local Claude settings
+.claude/settings.local.json
+
+# Local planning docs (specs / plans)
+docs/superpowers/
+
+# Dependencies
+node_modules/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+
+# Backup files
+*.bak
+*.backup
+*.tmp

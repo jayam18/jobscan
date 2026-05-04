@@ -1,0 +1,19 @@
+{
+  "name": "jobscan",
+  "version": "0.1.0",
+  "description": "Job listing scanner with CV-based relevancy scoring",
+  "type": "module",
+  "scripts": {
+    "doctor": "node doctor.mjs",
+    "scan": "node scan.mjs",
+    "scan:dry": "node scan.mjs --dry-run",
+    "notify": "node notify.mjs",
+    "notify:dry": "node notify.mjs --dry-run"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.91.1",
+    "js-yaml": "^4.1.1",
+    "playwright": "^1.58.1"
+  },
+  "license": "MIT"
+}
