@@ -224,18 +224,29 @@ JobScan can send a styled HTML email summary of each scan via [Resend](https://r
 
 1. Sign up for Resend (free tier supports plenty of emails).
 2. Create an API key.
-3. Verify a sending domain (or use Resend's test sender for development).
-4. Set environment variables:
+3. Verify a sending domain (or use Resend's test sender `onboarding@resend.dev` for development).
+4. Copy `.env.example` → `.env` and fill in your values:
    ```bash
-   export RESEND_API="re_..."
-   export RESEND_FROM="alerts@yourdomain.com"
-   export RESEND_TO="you@gmail.com"   # default recipient (optional)
+   cp .env.example .env
+   chmod 600 .env       # restrict to your user only
    ```
+   Then edit `.env`:
+   ```
+   RESEND_API=re_...
+   SENDER_EMAIL=alerts@yourdomain.com
+   DEFAULT_RECIPIENT_EMAIL=you@gmail.com
+   ```
+   `notify.mjs` auto-loads `.env` at startup — no `source` needed. `.env` is gitignored; `.env.example` is the template that lives in the repo.
+
+   You can also `export` these as shell env vars instead of using `.env`; shell exports take precedence.
+
 5. Run:
    ```bash
-   /jobscan you@example.com   # invoke and email
+   /jobscan you@example.com   # full pipeline + email
    # or, after a /jobscan run:
    node notify.mjs --to=you@example.com
+   # or with DEFAULT_RECIPIENT_EMAIL set in .env:
+   node notify.mjs
    ```
 
 ### Useful flags
@@ -247,7 +258,9 @@ node notify.mjs --to=...           # send single recipient
 node notify.mjs --to-multiple=a@b.com,c@d.com   # multiple recipients
 ```
 
-If `RESEND_API` / `RESEND_FROM` are unset, the script exits with a friendly error. The `--html` rendering works regardless of email setup — the HTML companion is written every `/jobscan` run automatically.
+Recipient resolution order: `--to-multiple=` > `--to=` > `DEFAULT_RECIPIENT_EMAIL` env var > error.
+
+If `RESEND_API` / `SENDER_EMAIL` are unset, the script exits with a friendly error. The `--html` rendering works regardless of email setup — the HTML companion is written every `/jobscan` run automatically.
 
 ---
 
@@ -296,7 +309,7 @@ Runs all setup checks. Surfaces missing files, malformed YAML, missing `node_mod
 
 ## Privacy
 
-- All your data — `cv.md`, `profile.yml`, `portals.yml`, `data/`, `interview/` — is gitignored. Nothing in this repo's `.git` will leak personal data.
+- All your data — `cv.md`, `profile.yml`, `portals.yml`, `data/`, `interview/`, `.env` — is gitignored. Secrets and personal data never enter `.git`.
 - Network calls leave your machine for: ATS APIs (public endpoints), WebSearch (Anthropic), LLM scoring (Anthropic), and Resend (only if you wire up email).
 - No telemetry. No analytics. No background processes.
 

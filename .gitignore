@@ -3,6 +3,11 @@ profile.yml
 portals.yml
 cv.md
 
+# Secrets
+.env
+.env.local
+.env.*.local
+
 # Data / Output
 data/*
 !data/.gitkeep

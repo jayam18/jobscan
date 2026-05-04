@@ -49,7 +49,7 @@ On session start, verify setup silently. Enter onboarding if anything is missing
 - `/jobscan` — full pipeline: discover → filter → dedup → score → write output
 - `/jobscan discover` — discovery + filter only (no scoring)
 - `/jobscan score` — score only; reads from `data/jobscan-new.tsv`
-- `node notify.mjs` — send a professional HTML email summary of today's scan results (requires `--to=<email>` or `RESEND_TO` env var)
+- `node notify.mjs` — send a professional HTML email summary of today's scan results (requires `--to=<email>` or `DEFAULT_RECIPIENT_EMAIL` in `.env` — see `.env.example`)
 - `node notify.mjs --to=<email>` — send to a specific recipient
 - `node notify.mjs --dry-run` — preview email without sending (writes `data/jobscan-email-YYYY-MM-DD.preview.html`)
 - `node notify.mjs --html` — render today's section as `data/jobscan-out.html` (no email; invoked automatically at end of `/jobscan`)

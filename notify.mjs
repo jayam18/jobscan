@@ -4,19 +4,47 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Auto-load .env from cwd or repo root if present. Existing process.env values
+// take precedence over .env (so shell exports always win). Skips quietly if the
+// file is missing or unreadable — .env is optional.
+function loadDotEnv() {
+  const candidates = [path.join(process.cwd(), '.env'), path.join(__dirname, '.env')];
+  for (const file of candidates) {
+    if (!fs.existsSync(file)) continue;
+    let content;
+    try { content = fs.readFileSync(file, 'utf-8'); } catch { continue; }
+    for (const rawLine of content.split('\n')) {
+      const line = rawLine.trim();
+      if (!line || line.startsWith('#')) continue;
+      const eq = line.indexOf('=');
+      if (eq === -1) continue;
+      const key = line.slice(0, eq).trim();
+      let value = line.slice(eq + 1).trim();
+      if ((value.startsWith('"') && value.endsWith('"')) ||
+          (value.startsWith("'") && value.endsWith("'"))) {
+        value = value.slice(1, -1);
+      }
+      if (!(key in process.env)) process.env[key] = value;
+    }
+    break; // first found wins
+  }
+}
+loadDotEnv();
+
 const isDryRun = process.argv.includes('--dry-run');
 const isHtmlOnly = process.argv.includes('--html');
 
 const RESEND_API_KEY = process.env.RESEND_API;
-const RESEND_FROM = process.env.RESEND_FROM;
-const RESEND_TO = process.env.RESEND_TO;
+const SENDER_EMAIL = process.env.SENDER_EMAIL;
+const DEFAULT_RECIPIENT_EMAIL = process.env.DEFAULT_RECIPIENT_EMAIL;
 
-// Recipient resolution order: --to-multiple= > --to= > RESEND_TO env var > [] (no recipient)
+// Recipient resolution order: --to-multiple= > --to= > DEFAULT_RECIPIENT_EMAIL env var > [] (no recipient)
 const toArg = process.argv.find(a => a.startsWith('--to='))?.slice(5);
 const toMultipleArg = process.argv.find(a => a.startsWith('--to-multiple='))?.slice(14);
 const RECIPIENT_EMAILS = toMultipleArg
   ? toMultipleArg.split(',').map(e => e.trim())
-  : (toArg ? [toArg] : (RESEND_TO ? RESEND_TO.split(',').map(e => e.trim()) : []));
+  : (toArg ? [toArg] : (DEFAULT_RECIPIENT_EMAIL ? DEFAULT_RECIPIENT_EMAIL.split(',').map(e => e.trim()) : []));
 
 // ── Section helpers ────────────────────────────────────────────────────────
 
@@ -338,8 +366,8 @@ function generateEmailContent() {
 }
 
 async function sendViaResend(htmlBody, date, recipients) {
-  if (!RESEND_API_KEY) return { success: false, error: 'RESEND_API not set' };
-  if (!RESEND_FROM) return { success: false, error: 'RESEND_FROM not set' };
+  if (!RESEND_API_KEY) return { success: false, error: 'RESEND_API not set (see .env.example)' };
+  if (!SENDER_EMAIL) return { success: false, error: 'SENDER_EMAIL not set (see .env.example)' };
 
   const results = [];
   for (const email of recipients) {
@@ -351,7 +379,7 @@ async function sendViaResend(htmlBody, date, recipients) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: RESEND_FROM,
+          from: SENDER_EMAIL,
           to: email,
           subject: `JobScan Results — ${date}`,
           html: htmlBody,
@@ -396,14 +424,14 @@ if (isHtmlOnly) {
   fs.writeFileSync(previewPath, result.body);
   console.log('════════════════════════════════════════════════════');
   console.log(`DRY RUN — Preview written to ${previewPath}`);
-  console.log(`Recipients (when sent): ${RECIPIENT_EMAILS.length ? RECIPIENT_EMAILS.join(', ') : '(none — pass --to= or set RESEND_TO before sending)'}`);
+  console.log(`Recipients (when sent): ${RECIPIENT_EMAILS.length ? RECIPIENT_EMAILS.join(', ') : '(none — pass --to= or set DEFAULT_RECIPIENT_EMAIL in .env before sending)'}`);
   console.log(`High Fit ${result.highFit.length} · Medium Fit ${result.mediumFit.length} · Low Fit ${result.lowFit.length} · Plausible ${result.plausible.length}`);
   console.log('════════════════════════════════════════════════════');
   console.log('To send: node notify.mjs');
 } else {
   if (RECIPIENT_EMAILS.length === 0) {
     console.error('No recipient specified.');
-    console.error('  Pass --to=<email>, --to-multiple=<a@b.com,c@d.com>, or set RESEND_TO env var.');
+    console.error('  Pass --to=<email>, --to-multiple=<a@b.com,c@d.com>, or set DEFAULT_RECIPIENT_EMAIL in .env (see .env.example).');
     console.error('  HTML-only render (no email):     node notify.mjs --html');
     console.error('  Preview without sending:         node notify.mjs --dry-run --to=<email>');
     process.exit(1);
@@ -418,10 +446,11 @@ if (isHtmlOnly) {
         console.log(`❌ ${r.email} — ${r.error}`);
       }
     }
-    console.log(`From: ${RESEND_FROM}`);
+    console.log(`From: ${SENDER_EMAIL}`);
   } else {
     console.error(`❌ Failed to send emails`);
-    for (const r of sendResult.results) {
+    if (sendResult.error) console.error(`  ${sendResult.error}`);
+    for (const r of sendResult.results || []) {
       if (!r.success) {
         console.error(`  ${r.email}: ${r.error}`);
       }
