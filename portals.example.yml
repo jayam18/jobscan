@@ -103,9 +103,15 @@ tracked_companies:
     enabled: true
 
   # ── Add your own below ──
-  # - name: "Example Co"
+  # - name: "Example Co (Ashby)"
   #   careers_url: "https://jobs.ashbyhq.com/example-co"
   #   enabled: true
+  #
+  # - name: "Example Corp (Workday)"
+  #   careers_url: "https://example.wd5.myworkdayjobs.com/en-US/ExampleCareers"
+  #   enabled: true
+  #   # Workday tenant subdomains follow the pattern <tenant>.wd{N}.myworkdayjobs.com
+  #   # where N is 1, 3, 5, 103, etc. scan.mjs auto-detects the JSON endpoint.
 
 # ── WebSearch queries (Level 3 — broad discovery) ─────────────────────
 
@@ -120,4 +126,8 @@ search_queries:
 
   - name: "Lever — Staff/Principal AI"
     query: 'site:jobs.lever.co ("Staff AI" OR "Principal AI" OR "Head of AI")'
+    enabled: true
+
+  - name: "Workday — Director / Senior Manager"
+    query: 'site:myworkdayjobs.com ("Director AI" OR "Senior Manager AI" OR "Head of AI") Remote'
     enabled: true

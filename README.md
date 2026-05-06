@@ -1,5 +1,9 @@
 # JobScan
 
+**Credit to Career-Ops Repo** [career-ops](https://github.com/santifer/career-ops) , from where I took bits and enhanced it to just do one thing - scan jobs and notify via email digest.
+
+
+
 Discover job listings across tracked companies, filter by title/location, and rank survivors 1-5 by CV×JD fit. A standalone Claude Code project.
 
 Zero-token discovery via direct ATS APIs (Greenhouse, Ashby, Lever, Workday) + one LLM call per batch of 5 offers for scoring. Output: ranked markdown, styled HTML, and (optionally) email.
