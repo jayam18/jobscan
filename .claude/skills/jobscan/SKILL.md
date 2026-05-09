@@ -366,7 +366,18 @@ Each tier is rendered as a Markdown table. Columns are fixed:
 Template:
 
 ```markdown
-## {YYYY-MM-DD} — {N_total} scanned, {N_title} title-filtered, {N_dup} dupes, {N_scored} scored
+## {YYYY-MM-DD} — {N_discovered} discovered, classified (strong: {N_strong}, plausible: {N_plausible}, skip: {N_skip}), {N_scored} scored
+
+<!--
+Header-line contract (parsed by notify.mjs).
+- {N_discovered} = total candidates that survived title + location filters and dedup.
+  This is the same number that gets classified.
+- The literal tokens "discovered", "strong:", "plausible:", "skip:", and "scored"
+  must appear exactly as shown — notify.mjs uses regex match on each.
+- Additional notes (sources, error counts, etc.) belong in body text below the
+  header, not on the header line itself.
+-->
+
 
 ### High Fit (≥{score_threshold_high})
 

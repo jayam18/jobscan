@@ -46,6 +46,23 @@ const RECIPIENT_EMAILS = toMultipleArg
   ? toMultipleArg.split(',').map(e => e.trim())
   : (toArg ? [toArg] : (DEFAULT_RECIPIENT_EMAIL ? DEFAULT_RECIPIENT_EMAIL.split(',').map(e => e.trim()) : []));
 
+// Read candidate's first name from profile.yml for use in the email subject.
+// Returns null if profile.yml is missing or full_name can't be parsed —
+// callers fall back to a name-less subject.
+function loadCandidateFirstName() {
+  const file = path.join(__dirname, 'profile.yml');
+  if (!fs.existsSync(file)) return null;
+  let content;
+  try { content = fs.readFileSync(file, 'utf-8'); } catch { return null; }
+  // Minimal regex parse — avoids adding a YAML dep just for one field.
+  // Match `full_name: "..."` or `full_name: ...` under a top-level `candidate:` key.
+  const m = content.match(/^candidate:\s*\n(?:[ \t]+[^\n]*\n)*?[ \t]+full_name:\s*['"]?([^'"\n]+?)['"]?\s*$/m);
+  if (!m) return null;
+  const fullName = m[1].trim();
+  if (!fullName) return null;
+  return fullName.split(/\s+/)[0]; // first token
+}
+
 // ── Section helpers ────────────────────────────────────────────────────────
 
 function escapeHTML(str) {
@@ -365,6 +382,13 @@ function generateEmailContent() {
   return { success: true, body, date: today, stats, highFit, mediumFit, lowFit, plausible };
 }
 
+function subjectLine(date) {
+  const firstName = loadCandidateFirstName();
+  return firstName
+    ? `JobScan Results for ${firstName} — ${date}`
+    : `JobScan Results — ${date}`;
+}
+
 async function sendViaResend(htmlBody, date, recipients) {
   if (!RESEND_API_KEY) return { success: false, error: 'RESEND_API not set (see .env.example)' };
   if (!SENDER_EMAIL) return { success: false, error: 'SENDER_EMAIL not set (see .env.example)' };
@@ -381,7 +405,7 @@ async function sendViaResend(htmlBody, date, recipients) {
         body: JSON.stringify({
           from: SENDER_EMAIL,
           to: email,
-          subject: `JobScan Results — ${date}`,
+          subject: subjectLine(date),
           html: htmlBody,
         }),
       });
